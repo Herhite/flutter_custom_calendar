@@ -117,12 +117,12 @@ class CalendarProvider extends ChangeNotifier {
     Set<DateModel>? selectedDateList,
     DateModel? selectDateModel,
     required CalendarConfiguration calendarConfiguration,
-    EdgeInsetsGeometry? padding,
-    EdgeInsetsGeometry? margin,
+    required EdgeInsetsGeometry padding,
+    required EdgeInsetsGeometry margin,
     double? itemSize,
-    double? verticalSpacing,
-    DayWidgetBuilder? dayWidgetBuilder,
-    WeekBarItemWidgetBuilder? weekBarItemWidgetBuilder,
+    required double verticalSpacing,
+    required DayWidgetBuilder dayWidgetBuilder,
+    required WeekBarItemWidgetBuilder weekBarItemWidgetBuilder,
   }) {
     LogUtil.log(TAG: this.runtimeType, message: "CalendarProvider initData");
     this.calendarConfiguration = calendarConfiguration;

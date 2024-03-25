@@ -57,7 +57,7 @@ class CalendarConfiguration {
 
   //支持自定义绘制
   DayWidgetBuilder? dayWidgetBuilder; //创建日历item
-  WeekBarItemWidgetBuilder? weekBarItemWidgetBuilder; //创建顶部的weekbar
+  late WeekBarItemWidgetBuilder weekBarItemWidgetBuilder; //创建顶部的weekbar
 
   /**
    * 监听变化
