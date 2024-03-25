@@ -50,7 +50,7 @@ class CalendarController {
       int maxSelectMonth = 12,
       int maxSelectDay = 30,
       Set<DateTime> selectedDateTimeList = EMPTY_SET, //多选模式下，默认选中的item列表
-      required DateModel selectDateModel, //单选模式下，默认选中的item
+      DateModel? selectDateModel, //单选模式下，默认选中的item
       int maxMultiSelectCount = 9999,
       Map<DateModel, Object> extraDataMap = EMPTY_MAP,
       int offset = 0 // 首日偏移量
@@ -81,7 +81,8 @@ class CalendarController {
         extraDataMap: extraDataMap,
         maxSelectDay: maxSelectDay,
         maxMultiSelectCount: maxMultiSelectCount,
-        selectDateModel: selectDateModel,
+        selectDateModel:
+            selectDateModel ?? DateModel.fromDateTime(DateTime.now()),
         offset: offset);
 
     calendarConfiguration.defaultSelectedDateList = new HashSet<DateModel>();
@@ -90,7 +91,8 @@ class CalendarController {
       return DateModel.fromDateTime(dateTime);
     }).toSet());
     //将默认选中的数据，放到provider中
-    calendarProvider.selectDateModel = selectDateModel;
+    calendarProvider.selectDateModel =
+        selectDateModel ?? DateModel.fromDateTime(DateTime.now());
     calendarProvider.selectedDateList =
         calendarConfiguration.defaultSelectedDateList;
     calendarConfiguration.minSelectDate = DateModel.fromDateTime(DateTime(
