@@ -11,14 +11,14 @@ import 'package:provider/provider.dart';
  * 周视图，只显示本周的日子
  */
 class WeekView extends StatefulWidget {
-  final int year;
-  final int month;
-  final DateModel firstDayOfWeek;
-  final CalendarConfiguration configuration;
+  final int? year;
+  final int? month;
+  final DateModel? firstDayOfWeek;
+  final CalendarConfiguration? configuration;
 
   const WeekView(
-      {@required this.year,
-      @required this.month,
+      {required this.year,
+      required this.month,
       this.firstDayOfWeek,
       this.configuration});
 
@@ -27,20 +27,20 @@ class WeekView extends StatefulWidget {
 }
 
 class _WeekViewState extends State<WeekView> {
-  List<DateModel> items;
+  late List<DateModel> items;
 
-  Map<DateModel, Object> extraDataMap; //自定义额外的数据
+  Map<DateModel, Object>? extraDataMap; //自定义额外的数据
 
   @override
   void initState() {
     super.initState();
-    extraDataMap = widget.configuration.extraDataMap;
+    extraDataMap = widget.configuration!.extraDataMap;
     items = DateUtil.initCalendarForWeekView(
-        widget.year, widget.month, widget.firstDayOfWeek.getDateTime(), 0,
-        minSelectDate: widget.configuration.minSelectDate,
-        maxSelectDate: widget.configuration.maxSelectDate,
+        widget.year, widget.month, widget.firstDayOfWeek!.getDateTime(), 0,
+        minSelectDate: widget.configuration!.minSelectDate,
+        maxSelectDate: widget.configuration!.maxSelectDate,
         extraDataMap: extraDataMap,
-        offset: widget.configuration.offset);
+        offset: widget.configuration!.offset);
 
     //第一帧后,添加监听，generation发生变化后，需要刷新整个日历
     WidgetsBinding.instance.addPostFrameCallback((callback) {
@@ -48,11 +48,11 @@ class _WeekViewState extends State<WeekView> {
           .generation
           .addListener(() async {
         items = DateUtil.initCalendarForWeekView(
-            widget.year, widget.month, widget.firstDayOfWeek.getDateTime(), 0,
-            minSelectDate: widget.configuration.minSelectDate,
-            maxSelectDate: widget.configuration.maxSelectDate,
+            widget.year, widget.month, widget.firstDayOfWeek!.getDateTime(), 0,
+            minSelectDate: widget.configuration!.minSelectDate,
+            maxSelectDate: widget.configuration!.maxSelectDate,
             extraDataMap: extraDataMap,
-            offset: widget.configuration.offset);
+            offset: widget.configuration!.offset);
         setState(() {});
       });
     });
@@ -63,7 +63,7 @@ class _WeekViewState extends State<WeekView> {
     CalendarProvider calendarProvider =
         Provider.of<CalendarProvider>(context, listen: false);
 
-    CalendarConfiguration configuration =
+    CalendarConfiguration? configuration =
         calendarProvider.calendarConfiguration;
     return new GridView.builder(
         physics: NeverScrollableScrollPhysics(),
@@ -73,9 +73,9 @@ class _WeekViewState extends State<WeekView> {
         itemBuilder: (context, index) {
           DateModel dateModel = items[index];
           //判断是否被选择
-          switch (configuration.selectMode) {
+          switch (configuration!.selectMode) {
             case CalendarSelectedMode.multiSelect:
-              if (calendarProvider.selectedDateList.contains(dateModel)) {
+              if (calendarProvider.selectedDateList!.contains(dateModel)) {
                 dateModel.isSelected = true;
               } else {
                 dateModel.isSelected = false;
@@ -89,7 +89,7 @@ class _WeekViewState extends State<WeekView> {
               }
               break;
             case CalendarSelectedMode.mutltiStartToEndSelect:
-              if (calendarProvider.selectedDateList.contains(dateModel)) {
+              if (calendarProvider.selectedDateList!.contains(dateModel)) {
                 dateModel.isSelected = true;
               } else {
                 dateModel.isSelected = false;

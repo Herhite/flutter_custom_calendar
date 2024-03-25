@@ -60,7 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       })
       ..addOnCalendarUnSelectListener((dateModel) {
-        LogUtil.log(TAG: '_selectedModels', message: _selectedModels.toString());
+        LogUtil.log(
+            TAG: '_selectedModels', message: _selectedModels.toString());
         LogUtil.log(TAG: 'dateModel', message: dateModel.toString());
         if (_selectedModels.contains(dateModel)) {
           _selectedModels.remove(dateModel);
@@ -160,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
             spacing: 10,
             runSpacing: 10,
             children: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(
                   '单选',
                   style: TextStyle(color: Colors.white),
@@ -171,12 +172,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         CalendarSelectedMode.singleSelect;
                   });
                 },
-                color: controller.calendarConfiguration.selectMode ==
-                        CalendarSelectedMode.singleSelect
-                    ? Colors.teal
-                    : Colors.black38,
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      controller.calendarConfiguration.selectMode ==
+                              CalendarSelectedMode.singleSelect
+                          ? Colors.teal
+                          : Colors.black38,
+                ),
               ),
-              FlatButton(
+              TextButton(
                 child: Text(
                   '多选',
                   style: TextStyle(color: Colors.white),
@@ -187,12 +191,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         CalendarSelectedMode.multiSelect;
                   });
                 },
-                color: controller.calendarConfiguration.selectMode ==
-                        CalendarSelectedMode.multiSelect
-                    ? Colors.teal
-                    : Colors.black38,
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      controller.calendarConfiguration.selectMode ==
+                              CalendarSelectedMode.singleSelect
+                          ? Colors.teal
+                          : Colors.black38,
+                ),
               ),
-              FlatButton(
+              TextButton(
                 child: Text(
                   '多选 选择开始和结束',
                   style: TextStyle(color: Colors.white),
@@ -203,10 +210,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         CalendarSelectedMode.mutltiStartToEndSelect;
                   });
                 },
-                color: controller.calendarConfiguration.selectMode ==
-                        CalendarSelectedMode.mutltiStartToEndSelect
-                    ? Colors.teal
-                    : Colors.black38,
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      controller.calendarConfiguration.selectMode ==
+                              CalendarSelectedMode.singleSelect
+                          ? Colors.teal
+                          : Colors.black38,
+                ),
               ),
             ],
           ),
@@ -226,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
             spacing: 10,
             runSpacing: 10,
             children: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text(
                   '月视图',
                   style: TextStyle(color: Colors.white),
@@ -237,34 +247,41 @@ class _MyHomePageState extends State<MyHomePage> {
                         CalendarConstants.MODE_SHOW_ONLY_WEEK);
                   });
                 },
-                color: _isMonthSelected ? Colors.teal : Colors.black38,
-              ),
-              FlatButton(
-                child: Text(
-                  '周视图',
-                  style: TextStyle(color: Colors.white),
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      _isMonthSelected ? Colors.teal : Colors.black38,
                 ),
-                onPressed: () {
-                  setState(() {
-                    controller.weekAndMonthViewChange(
-                        CalendarConstants.MODE_SHOW_ONLY_MONTH);
-                  });
-                },
-                color: _isMonthSelected == false ? Colors.teal : Colors.black38,
               ),
-              FlatButton(
-                child: Text(
-                  'push',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => MyHomePage(title: 'second')));
-                },
-                color: Colors.teal,
-              ),
+              TextButton(
+                  child: Text(
+                    '周视图',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      controller.weekAndMonthViewChange(
+                          CalendarConstants.MODE_SHOW_ONLY_MONTH);
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: _isMonthSelected == false
+                        ? Colors.teal
+                        : Colors.black38,
+                  )),
+              TextButton(
+                  child: Text(
+                    'push',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => MyHomePage(title: 'second')));
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                  )),
             ],
           ),
         ],
