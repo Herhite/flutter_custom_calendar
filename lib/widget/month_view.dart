@@ -161,10 +161,10 @@ class _MonthViewState extends State<MonthView>
  * 多选模式，包装item，这样的话，就只需要刷新当前点击的item就行了，不需要刷新整个页面
  */
 class ItemContainer extends StatefulWidget {
-  final DateModel? dateModel;
+  final DateModel dateModel;
 
   final GestureTapCallback? clickCall;
-  const ItemContainer({Key? key, this.dateModel, this.clickCall})
+  const ItemContainer({Key? key, required this.dateModel, this.clickCall})
       : super(key: key);
 
   @override
@@ -172,7 +172,7 @@ class ItemContainer extends StatefulWidget {
 }
 
 class ItemContainerState extends State<ItemContainer> {
-  DateModel? dateModel;
+  late DateModel dateModel;
   CalendarConfiguration? configuration;
   late CalendarProvider calendarProvider;
 
@@ -284,13 +284,13 @@ class ItemContainerState extends State<ItemContainer> {
             if (calendarProvider.selectedDateList!.contains(dateModel)) {
               // 如果已经选择就执行取消
               _notifiCationUnCalendarSelect(calendarProvider.selectDateModel);
-              dateModel!.isSelected = false;
+              dateModel.isSelected = false;
               calendarProvider.selectedDateList!.clear();
-              calendarProvider.selectDateModel = null;
+              calendarProvider.selectDateModel = DateModel();
               _notifiCationUnCalendarSelect(dateModel);
             } else {
               _notifiCationUnCalendarSelect(calendarProvider.selectDateModel);
-              dateModel!.isSelected = true;
+              dateModel.isSelected = true;
               calendarProvider.selectDateModel = dateModel;
               _notifiCationCalendarSelect(dateModel);
             }

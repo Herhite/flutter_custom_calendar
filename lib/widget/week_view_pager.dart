@@ -15,7 +15,7 @@ class WeekViewPager extends StatefulWidget {
 
 class _WeekViewPagerState extends State<WeekViewPager>
     with AutomaticKeepAliveClientMixin {
-  int? lastMonth; //保存上一个月份，不然不知道月份发生了变化
+  late int lastMonth; //保存上一个月份，不然不知道月份发生了变化
   late CalendarProvider calendarProvider;
 
 //  PageController newPageController;
@@ -27,7 +27,7 @@ class _WeekViewPagerState extends State<WeekViewPager>
 
     calendarProvider = Provider.of<CalendarProvider>(context, listen: false);
 
-    lastMonth = calendarProvider.lastClickDateModel!.month;
+    lastMonth = calendarProvider.lastClickDateModel.month;
   }
 
   @override
@@ -73,7 +73,8 @@ class _WeekViewPagerState extends State<WeekViewPager>
               listener(firstDayOfWeek.year, firstDayOfWeek.month);
             });
             lastMonth = currentMonth;
-            if (calendarProvider.lastClickDateModel == null || calendarProvider.lastClickDateModel!.month != currentMonth) {
+            if (calendarProvider.lastClickDateModel == null ||
+                calendarProvider.lastClickDateModel!.month != currentMonth) {
               DateModel temp = new DateModel();
               temp.year = firstDayOfWeek.year;
               temp.month = firstDayOfWeek.month;

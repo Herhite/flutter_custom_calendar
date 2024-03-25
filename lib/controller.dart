@@ -50,7 +50,7 @@ class CalendarController {
       int maxSelectMonth = 12,
       int maxSelectDay = 30,
       Set<DateTime> selectedDateTimeList = EMPTY_SET, //多选模式下，默认选中的item列表
-      DateModel? selectDateModel, //单选模式下，默认选中的item
+      required DateModel selectDateModel, //单选模式下，默认选中的item
       int maxMultiSelectCount = 9999,
       Map<DateModel, Object> extraDataMap = EMPTY_MAP,
       int offset = 0 // 首日偏移量
@@ -84,7 +84,7 @@ class CalendarController {
         selectDateModel: selectDateModel,
         offset: offset);
 
-    calendarConfiguration.defaultSelectedDateList = new HashSet<DateModel?>();
+    calendarConfiguration.defaultSelectedDateList = new HashSet<DateModel>();
     calendarConfiguration.defaultSelectedDateList!
         .addAll(selectedDateTimeList.map((dateTime) {
       return DateModel.fromDateTime(dateTime);
@@ -272,7 +272,7 @@ class CalendarController {
   //可以动态修改默认选中的item。
   void changeDefaultSelectedDateList(Set<DateModel> defaultSelectedDateList) {
     this.calendarConfiguration.defaultSelectedDateList =
-        defaultSelectedDateList as HashSet<DateModel?>?;
+        defaultSelectedDateList as HashSet<DateModel>?;
     this.calendarProvider.generation.value++;
   }
 

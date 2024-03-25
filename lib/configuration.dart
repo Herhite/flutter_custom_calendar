@@ -41,8 +41,8 @@ class CalendarConfiguration {
   int? maxSelectMonth;
   int? maxSelectDay; //注意：不能超过对应月份的总天数
 
-  DateModel? selectDateModel; //默认被选中的item，用于单选
-  HashSet<DateModel?>? defaultSelectedDateList; //默认被选中的日期set，用于多选
+  late DateModel selectDateModel; //默认被选中的item，用于单选
+  HashSet<DateModel>? defaultSelectedDateList; //默认被选中的日期set，用于多选
   int? maxMultiSelectCount; //多选，最多选多少个
   Map<DateModel, Object>? extraDataMap = new Map(); //自定义额外的数据
 
@@ -103,7 +103,7 @@ class CalendarConfiguration {
       this.maxSelectMonth,
       this.maxSelectDay,
       this.defaultSelectedDateList,
-      this.selectDateModel,
+      required this.selectDateModel,
       this.maxMultiSelectCount,
       this.extraDataMap,
       this.monthList,

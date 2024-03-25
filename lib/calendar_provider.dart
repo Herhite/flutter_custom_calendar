@@ -17,10 +17,11 @@ import 'model/date_model.dart';
  */
 class CalendarProvider extends ChangeNotifier {
   double? _totalHeight; //当前月视图的整体高度
-  HashSet<DateModel?>? selectedDateList = new HashSet<DateModel?>(); //被选中的日期,用于多选
-  DateModel? _selectDateModel; //当前选中的日期，用于单选
+  HashSet<DateModel?>? selectedDateList =
+      new HashSet<DateModel?>(); //被选中的日期,用于多选
+  late DateModel _selectDateModel; //当前选中的日期，用于单选
   ItemContainerState? lastClickItemState;
-  DateModel? _lastClickDateModel;
+  late DateModel _lastClickDateModel;
 
   double? get totalHeight => _totalHeight;
 
@@ -42,17 +43,17 @@ class CalendarProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  DateModel? get lastClickDateModel =>
+  DateModel get lastClickDateModel =>
       _lastClickDateModel; //保存最后点击的一个日期，用于周视图与月视图之间的切换和同步
 
-  set lastClickDateModel(DateModel? value) {
+  set lastClickDateModel(DateModel value) {
     _lastClickDateModel = value;
     printY("set lastClickDateModel:$lastClickDateModel");
   }
 
-  DateModel? get selectDateModel => _selectDateModel;
+  DateModel get selectDateModel => _selectDateModel;
 
-  set selectDateModel(DateModel? value) {
+  set selectDateModel(DateModel value) {
     _selectDateModel = value;
     LogUtil.log(
         TAG: this.runtimeType,
@@ -90,7 +91,8 @@ class CalendarProvider extends ChangeNotifier {
     int index = 0;
     for (int i = 0; i < calendarConfiguration!.monthList!.length - 1; i++) {
       DateTime preMonth = calendarConfiguration!.monthList![i].getDateTime();
-      DateTime nextMonth = calendarConfiguration!.monthList![i + 1].getDateTime();
+      DateTime nextMonth =
+          calendarConfiguration!.monthList![i + 1].getDateTime();
       if (!dateModel!.getDateTime().isBefore(preMonth) &&
           !dateModel.getDateTime().isAfter(nextMonth)) {
         index = i;
@@ -108,7 +110,7 @@ class CalendarProvider extends ChangeNotifier {
   late ValueNotifier<bool> expandStatus; //当前展开状态
 
   //配置类也放这里吧，这样的话，所有子树，都可以拿到配置的信息
-  CalendarConfiguration? calendarConfiguration;
+  late CalendarConfiguration calendarConfiguration;
   void weekAndMonthViewChange(int mode) {}
 
   void initData({
@@ -126,14 +128,14 @@ class CalendarProvider extends ChangeNotifier {
     this.calendarConfiguration = calendarConfiguration;
     this
         .selectedDateList!
-        .addAll(this.calendarConfiguration!.defaultSelectedDateList!);
-    this.selectDateModel = this.calendarConfiguration!.selectDateModel;
-    this.calendarConfiguration!.padding = padding;
-    this.calendarConfiguration!.margin = margin;
-    this.calendarConfiguration!.itemSize = itemSize;
-    this.calendarConfiguration!.verticalSpacing = verticalSpacing;
-    this.calendarConfiguration!.dayWidgetBuilder = dayWidgetBuilder;
-    this.calendarConfiguration!.weekBarItemWidgetBuilder =
+        .addAll(this.calendarConfiguration.defaultSelectedDateList!);
+    this.selectDateModel = this.calendarConfiguration.selectDateModel;
+    this.calendarConfiguration.padding = padding;
+    this.calendarConfiguration.margin = margin;
+    this.calendarConfiguration.itemSize = itemSize;
+    this.calendarConfiguration.verticalSpacing = verticalSpacing;
+    this.calendarConfiguration.dayWidgetBuilder = dayWidgetBuilder;
+    this.calendarConfiguration.weekBarItemWidgetBuilder =
         weekBarItemWidgetBuilder;
 
     //lastClickDateModel，默认是选中的item，如果为空的话，默认是当前的时间
@@ -191,7 +193,7 @@ class CalendarProvider extends ChangeNotifier {
     LogUtil.log(TAG: this.runtimeType, message: "CalendarProvider clearData");
     CacheData.getInstance()!.clearData();
     selectedDateList!.clear();
-    selectDateModel = null;
-    calendarConfiguration = null;
+    // selectDateModel = DateModel();
+    // calendarConfiguration = CalendarConfiguration();
   }
 }
