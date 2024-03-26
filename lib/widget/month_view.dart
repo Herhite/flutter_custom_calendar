@@ -259,6 +259,8 @@ class ItemContainerState extends State<ItemContainer> {
           }
         }
         if (configuration.selectMode == CalendarSelectedMode.singleSelect) {
+          print("ZA单选");
+
           /// 加入已经选择了多个 则进行取消操作
           calendarProvider.selectedDateList.forEach((element) {
             element.isSelected = false;
@@ -268,10 +270,12 @@ class ItemContainerState extends State<ItemContainer> {
 
           //单选需要刷新上一个item
           if (calendarProvider.lastClickItemState != this) {
+            print("ZA请你刷新上一个");
             calendarProvider.lastClickItemState?.refreshItem(false);
             calendarProvider.lastClickItemState = this;
           }
           if (calendarProvider.selectedDateList.contains(dateModel)) {
+            print("ZA请你取消选中状态");
             // 如果已经选择就执行取消
             _notifiCationUnCalendarSelect(calendarProvider.selectDateModel);
             dateModel.isSelected = false;
@@ -279,6 +283,7 @@ class ItemContainerState extends State<ItemContainer> {
             calendarProvider.selectDateModel = null;
             _notifiCationUnCalendarSelect(dateModel);
           } else {
+            print("ZA请你刷新选中状态");
             _notifiCationUnCalendarSelect(calendarProvider.selectDateModel);
             dateModel.isSelected = true;
             calendarProvider.selectDateModel = dateModel;
