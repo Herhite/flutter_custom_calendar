@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_calendar/widget/week_view.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_custom_calendar/configuration.dart';
-import 'package:flutter_custom_calendar/flutter_custom_calendar.dart';
-import 'package:flutter_custom_calendar/utils/LogUtil.dart';
+
+import '../flutter_custom_calendar.dart';
+import '../utils/LogUtil.dart';
+import 'week_view.dart';
 
 class WeekViewPager extends StatefulWidget {
   const WeekViewPager({Key? key}) : super(key: key);
@@ -45,7 +44,7 @@ class _WeekViewPagerState extends State<WeekViewPager>
     CalendarProvider calendarProvider =
         Provider.of<CalendarProvider>(context, listen: false);
     CalendarConfiguration configuration =
-        calendarProvider.calendarConfiguration!;
+        calendarProvider.calendarConfiguration;
     return Container(
       height: configuration.itemSize ?? MediaQuery.of(context).size.width / 7,
       child: PageView.builder(
@@ -58,10 +57,10 @@ class _WeekViewPagerState extends State<WeekViewPager>
               TAG: this.runtimeType,
               message:
                   "WeekViewPager PageView onPageChanged,position:$position");
-          DateModel firstDayOfWeek = configuration.weekList![position];
-          int? currentMonth = firstDayOfWeek.month;
+          DateModel firstDayOfWeek = configuration.weekList[position];
+          int currentMonth = firstDayOfWeek.month;
 //          周视图的变化
-          configuration.weekChangeListeners!.forEach((listener) {
+          configuration.weekChangeListeners.forEach((listener) {
             listener(firstDayOfWeek.year, firstDayOfWeek.month);
           });
           if (lastMonth != currentMonth) {
@@ -69,12 +68,12 @@ class _WeekViewPagerState extends State<WeekViewPager>
                 TAG: this.runtimeType,
                 message:
                     "WeekViewPager PageView monthChange:currentMonth:$currentMonth");
-            configuration.monthChangeListeners!.forEach((listener) {
+            configuration.monthChangeListeners.forEach((listener) {
               listener(firstDayOfWeek.year, firstDayOfWeek.month);
             });
             lastMonth = currentMonth;
             if (calendarProvider.lastClickDateModel == null ||
-                calendarProvider.lastClickDateModel!.month != currentMonth) {
+                calendarProvider.lastClickDateModel.month != currentMonth) {
               DateModel temp = new DateModel();
               temp.year = firstDayOfWeek.year;
               temp.month = firstDayOfWeek.month;
@@ -86,9 +85,9 @@ class _WeekViewPagerState extends State<WeekViewPager>
 //          calendarProvider.lastClickDateModel = configuration.weekList[position]
 //            ..day += 4;
         },
-        controller: calendarProvider.calendarConfiguration!.weekController,
+        controller: calendarProvider.calendarConfiguration.weekController,
         itemBuilder: (context, index) {
-          DateModel dateModel = configuration.weekList![index];
+          DateModel dateModel = configuration.weekList[index];
           print('dateModel: $dateModel');
           return new WeekView(
             year: dateModel.year,
@@ -97,7 +96,7 @@ class _WeekViewPagerState extends State<WeekViewPager>
             configuration: calendarProvider.calendarConfiguration,
           );
         },
-        itemCount: configuration.weekList!.length,
+        itemCount: configuration.weekList.length,
       ),
     );
   }

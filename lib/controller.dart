@@ -1,22 +1,11 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'calendar_provider.dart';
-import 'configuration.dart';
-import 'constants/constants.dart';
 import 'flutter_custom_calendar.dart';
 import 'utils/LogUtil.dart';
 import 'utils/date_util.dart';
-import 'widget/default_combine_day_view.dart';
-import 'widget/default_custom_day_view.dart';
-import 'widget/default_week_bar.dart';
 
-import 'model/date_model.dart';
-
-/**
- * 利用controller来控制视图
- */
-
+/// 利用controller来控制视图
 class CalendarController {
   static const Set<DateTime> EMPTY_SET = {};
   static const Map<DateModel, Object> EMPTY_MAP = {};
@@ -31,8 +20,8 @@ class CalendarController {
    */
   List<DateModel> monthList = []; //月份list
   List<DateModel> weekList = []; //星期list
-  PageController? monthController; //月份的controller
-  PageController? weekController; //星期的controller
+  late PageController monthController; //月份的controller
+  late PageController weekController; //星期的controller
 
   CalendarController(
       {CalendarSelectedMode selectMode = CalendarSelectedMode.singleSelect,
@@ -86,23 +75,23 @@ class CalendarController {
         offset: offset);
 
     calendarConfiguration.defaultSelectedDateList = new HashSet<DateModel>();
-    calendarConfiguration.defaultSelectedDateList!
-        .addAll(selectedDateTimeList.map((dateTime) {
+    calendarConfiguration.defaultSelectedDateList
+        ?.addAll(selectedDateTimeList.map((dateTime) {
       return DateModel.fromDateTime(dateTime);
     }).toSet());
     //将默认选中的数据，放到provider中
     calendarProvider.selectDateModel =
         selectDateModel ?? DateModel.fromDateTime(DateTime.now());
     calendarProvider.selectedDateList =
-        calendarConfiguration.defaultSelectedDateList;
+        calendarConfiguration.defaultSelectedDateList!;
     calendarConfiguration.minSelectDate = DateModel.fromDateTime(DateTime(
-        calendarConfiguration.minSelectYear!,
-        calendarConfiguration.minSelectMonth!,
-        calendarConfiguration.minSelectDay!));
+        calendarConfiguration.minSelectYear,
+        calendarConfiguration.minSelectMonth,
+        calendarConfiguration.minSelectDay));
     calendarConfiguration.maxSelectDate = DateModel.fromDateTime(DateTime(
-        calendarConfiguration.maxSelectYear!,
-        calendarConfiguration.maxSelectMonth!,
-        calendarConfiguration.maxSelectDay!));
+        calendarConfiguration.maxSelectYear,
+        calendarConfiguration.maxSelectMonth,
+        calendarConfiguration.maxSelectDay));
 
     LogUtil.log(
         TAG: this.runtimeType,
@@ -115,15 +104,16 @@ class CalendarController {
         ))}");
     _weekAndMonthViewChange(showMode);
   }
+
   void _weekAndMonthViewChange(
     int showMode,
   ) {
-    int? minYear = calendarConfiguration.minYear;
-    int? maxYear = calendarConfiguration.maxYear;
-    int? minYearMonth = calendarConfiguration.minYearMonth;
-    int? maxYearMonth = calendarConfiguration.maxYearMonth;
-    int? nowYear = calendarConfiguration.nowYear;
-    int? nowMonth = calendarConfiguration.nowMonth;
+    int minYear = calendarConfiguration.minYear;
+    int maxYear = calendarConfiguration.maxYear;
+    int minYearMonth = calendarConfiguration.minYearMonth;
+    int maxYearMonth = calendarConfiguration.maxYearMonth;
+    int nowYear = calendarConfiguration.nowYear;
+    int nowMonth = calendarConfiguration.nowMonth;
     int nowDay = calendarConfiguration.selectDateModel?.day ?? -1;
 
     if (showMode != CalendarConstants.MODE_SHOW_ONLY_WEEK) {
@@ -131,12 +121,12 @@ class CalendarController {
       int initialPage = 0;
       int nowMonthIndex = 0;
       monthList.clear();
-      for (int i = minYear!; i <= maxYear!; i++) {
+      for (int i = minYear; i <= maxYear; i++) {
         for (int j = 1; j <= 12; j++) {
-          if (i == minYear && j < minYearMonth!) {
+          if (i == minYear && j < minYearMonth) {
             continue;
           }
-          if (i == maxYear && j > maxYearMonth!) {
+          if (i == maxYear && j > maxYearMonth) {
             continue;
           }
           DateModel dateModel = new DateModel();
@@ -171,19 +161,22 @@ class CalendarController {
       }
       int nowDay = 15; // 默认月中
       // 如果设置了 默认选择的时间 就取默认选择的时间天数，否则为当前时间
-      DateModel currentModel = calendarProvider.selectDateModel ??
-          calendarProvider.selectedDateList?.toList()[0] ??
-          DateModel.fromDateTime(DateTime.now());
-      if (currentModel != null) {
-        nowDay = currentModel.day;
+      DateModel currentModel;
+      if (calendarProvider.selectDateModel != null) {
+        currentModel = calendarProvider.selectDateModel!;
+      } else {
+        currentModel = calendarProvider.selectedDateList.isNotEmpty
+            ? calendarProvider.selectedDateList.first
+            : DateModel.fromDateTime(DateTime.now());
       }
-      DateTime nowTime = new DateTime(nowYear!, nowMonth!, nowDay);
-      DateTime firstDayOfMonth = DateTime(minYear!, minYearMonth!, 1);
+      nowDay = currentModel.day;
+      DateTime nowTime = new DateTime(nowYear, nowMonth, nowDay);
+      DateTime firstDayOfMonth = DateTime(minYear, minYearMonth, 1);
       //计算第一个星期的第一天的日期
       DateTime firstWeekDate =
           firstDayOfMonth.add(Duration(days: -(firstDayOfMonth.weekday - 1)));
 
-      DateTime lastDay = DateTime(maxYear!, maxYearMonth!,
+      DateTime lastDay = DateTime(maxYear, maxYearMonth,
           DateUtil.getMonthDaysCount(maxYear, maxYearMonth));
       int temp = -1;
       for (DateTime dateTime = firstWeekDate;
@@ -207,8 +200,12 @@ class CalendarController {
     }
     calendarConfiguration.monthList = monthList;
     calendarConfiguration.weekList = weekList;
-    calendarConfiguration.monthController = monthController;
-    calendarConfiguration.weekController = weekController;
+    if (showMode != CalendarConstants.MODE_SHOW_ONLY_WEEK) {
+      calendarConfiguration.monthController = monthController;
+    }
+    if (showMode != CalendarConstants.MODE_SHOW_ONLY_MONTH) {
+      calendarConfiguration.weekController = weekController;
+    }
     calendarProvider.weekAndMonthViewChange(showMode);
   }
 
@@ -221,13 +218,13 @@ class CalendarController {
 
   //周视图切换
   void addWeekChangeListener(OnWeekChange listener) {
-    this.calendarConfiguration.weekChangeListeners!.add(listener);
+    this.calendarConfiguration.weekChangeListeners.add(listener);
   }
 
   //月份切换监听
   void addMonthChangeListener(OnMonthChange listener) {
 //    this.calendarConfiguration.monthChange = listener;
-    this.calendarConfiguration.monthChangeListeners!.add(listener);
+    this.calendarConfiguration.monthChangeListeners.add(listener);
   }
 
   //点击选择监听
@@ -274,7 +271,7 @@ class CalendarController {
   //可以动态修改默认选中的item。
   void changeDefaultSelectedDateList(Set<DateModel> defaultSelectedDateList) {
     this.calendarConfiguration.defaultSelectedDateList =
-        defaultSelectedDateList as HashSet<DateModel>?;
+        defaultSelectedDateList;
     this.calendarProvider.generation.value++;
   }
 
@@ -290,15 +287,14 @@ class CalendarController {
   Future<bool> previousPage() async {
     if (calendarProvider.expandStatus.value == true) {
       //月视图
-      int currentIndex = calendarProvider
-          .calendarConfiguration!.monthController!.page!
-          .toInt();
+      int currentIndex =
+          calendarProvider.calendarConfiguration.monthController!.page!.toInt();
       if (currentIndex == 0) {
         return false;
       } else {
-        calendarProvider.calendarConfiguration!.monthController!
-            .previousPage(duration: DEFAULT_DURATION, curve: Curves.ease);
-        calendarProvider.calendarConfiguration!.monthChangeListeners!
+        calendarProvider.calendarConfiguration.monthController
+            ?.previousPage(duration: DEFAULT_DURATION, curve: Curves.ease);
+        calendarProvider.calendarConfiguration.monthChangeListeners
             .forEach((listener) {
           listener(monthList[currentIndex - 1].year,
               monthList[currentIndex - 1].month);
@@ -314,12 +310,12 @@ class CalendarController {
     } else {
       //周视图
       int currentIndex =
-          calendarProvider.calendarConfiguration!.weekController!.page!.toInt();
+          calendarProvider.calendarConfiguration.weekController!.page!.toInt();
       if (currentIndex == 0) {
         return false;
       } else {
-        calendarProvider.calendarConfiguration!.weekController!
-            .previousPage(duration: DEFAULT_DURATION, curve: Curves.ease);
+        calendarProvider.calendarConfiguration.weekController
+            ?.previousPage(duration: DEFAULT_DURATION, curve: Curves.ease);
         return true;
       }
     }
@@ -333,15 +329,14 @@ class CalendarController {
   Future<bool> nextPage() async {
     if (calendarProvider.expandStatus.value == true) {
       //月视图
-      int currentIndex = calendarProvider
-          .calendarConfiguration!.monthController!.page!
-          .toInt();
+      int currentIndex =
+          calendarProvider.calendarConfiguration.monthController!.page!.toInt();
       if (monthList.length - 1 == currentIndex) {
         return false;
       } else {
-        calendarProvider.calendarConfiguration!.monthController!
-            .nextPage(duration: DEFAULT_DURATION, curve: Curves.ease);
-        calendarProvider.calendarConfiguration!.monthChangeListeners!
+        calendarProvider.calendarConfiguration.monthController
+            ?.nextPage(duration: DEFAULT_DURATION, curve: Curves.ease);
+        calendarProvider.calendarConfiguration.monthChangeListeners
             .forEach((listener) {
           listener(monthList[currentIndex + 1].year,
               monthList[currentIndex + 1].month);
@@ -358,12 +353,12 @@ class CalendarController {
     } else {
       //周视图
       int currentIndex =
-          calendarProvider.calendarConfiguration!.weekController!.page!.toInt();
+          calendarProvider.calendarConfiguration.weekController!.page!.toInt();
       if (weekList.length - 1 == currentIndex) {
         return false;
       } else {
-        calendarProvider.calendarConfiguration!.weekController!
-            .nextPage(duration: DEFAULT_DURATION, curve: Curves.ease);
+        calendarProvider.calendarConfiguration.weekController
+            ?.nextPage(duration: DEFAULT_DURATION, curve: Curves.ease);
         return true;
       }
     }
@@ -381,16 +376,16 @@ class CalendarController {
       if (targetPage == -1) {
         return;
       }
-      if (calendarProvider.calendarConfiguration!.monthController!.hasClients ==
+      if (calendarProvider.calendarConfiguration.monthController!.hasClients ==
           false) {
         return;
       }
       if (needAnimation) {
-        calendarProvider.calendarConfiguration!.monthController!
-            .animateToPage(targetPage, duration: duration, curve: curve);
+        calendarProvider.calendarConfiguration.monthController
+            ?.animateToPage(targetPage, duration: duration, curve: curve);
       } else {
-        calendarProvider.calendarConfiguration!.monthController!
-            .jumpToPage(targetPage);
+        calendarProvider.calendarConfiguration.monthController
+            ?.jumpToPage(targetPage);
       }
     } else {
       DateModel dateModel = DateModel.fromDateTime(DateTime(year, month, 1));
@@ -404,16 +399,16 @@ class CalendarController {
           return;
         }
       }
-      if (calendarProvider.calendarConfiguration!.weekController!.hasClients ==
+      if (calendarProvider.calendarConfiguration.weekController!.hasClients ==
           false) {
         return;
       }
       if (needAnimation) {
-        calendarProvider.calendarConfiguration!.weekController!
-            .animateToPage(targetPage, duration: duration, curve: curve);
+        calendarProvider.calendarConfiguration.weekController
+            ?.animateToPage(targetPage, duration: duration, curve: curve);
       } else {
-        calendarProvider.calendarConfiguration!.weekController!
-            .jumpToPage(targetPage);
+        calendarProvider.calendarConfiguration.weekController
+            ?.jumpToPage(targetPage);
       }
     }
   }
@@ -424,7 +419,7 @@ class CalendarController {
       Duration duration = const Duration(milliseconds: 500),
       Curve curve = Curves.ease}) {
     DateTime targetDateTime = monthList[calendarProvider
-                .calendarConfiguration!.monthController!.page!
+                .calendarConfiguration.monthController!.page!
                 .toInt() +
             12]
         .getDateTime();
@@ -439,7 +434,7 @@ class CalendarController {
       Duration duration = const Duration(milliseconds: 500),
       Curve curve = Curves.ease}) {
     DateTime targetDateTime = monthList[calendarProvider
-                .calendarConfiguration!.monthController!.page!
+                .calendarConfiguration.monthController!.page!
                 .toInt() -
             12]
         .getDateTime();
@@ -455,31 +450,30 @@ class CalendarController {
       Curve curve = Curves.ease}) {
     //    如果当前显示的是周视图的话，需要计算出第一个月的index后，调用weekController
     if (calendarProvider.expandStatus.value == false) {
-      int? currentMonth = weekList[calendarProvider
-              .calendarConfiguration!.weekController!.page!
+      int currentMonth = weekList[calendarProvider
+              .calendarConfiguration.weekController!.page!
               .toInt()]
           .month;
-      for (int i = calendarProvider.calendarConfiguration!.weekController!.page!
+      for (int i = calendarProvider.calendarConfiguration.weekController!.page!
               .toInt();
           i < weekList.length;
           i++) {
         if (weekList[i].month != currentMonth) {
-          calendarProvider.calendarConfiguration!.weekController!.jumpToPage(i);
+          calendarProvider.calendarConfiguration.weekController!.jumpToPage(i);
           break;
         }
       }
       return;
     }
 
-    if ((calendarProvider.calendarConfiguration!.monthController!.page!
-                .toInt() +
+    if ((calendarProvider.calendarConfiguration.monthController!.page!.toInt() +
             1) >=
         monthList.length) {
       LogUtil.log(TAG: this.runtimeType, message: "moveToNextMonth：当前是最后一个月份");
       return;
     }
     DateTime targetDateTime = monthList[calendarProvider
-                .calendarConfiguration!.monthController!.page!
+                .calendarConfiguration.monthController!.page!
                 .toInt() +
             1]
         .getDateTime();
@@ -495,23 +489,23 @@ class CalendarController {
       Curve curve = Curves.ease}) {
     //    如果当前显示的是周视图的话，需要计算出第一个月的index后，调用weekController
     if (calendarProvider.expandStatus.value == false) {
-      int? currentMonth = weekList[weekController!.page!.toInt()].month;
-      for (int i = calendarProvider.calendarConfiguration!.weekController!.page!
+      int currentMonth = weekList[weekController.page!.toInt()].month;
+      for (int i = calendarProvider.calendarConfiguration.weekController!.page!
               .toInt();
           i >= 0;
           i--) {
         if (weekList[i].month != currentMonth &&
             weekList[i].isAfter(DateModel.fromDateTime(DateTime(
-                calendarConfiguration.minYear!,
-                calendarConfiguration.minYearMonth!)))) {
-          calendarProvider.calendarConfiguration!.weekController!.jumpToPage(i);
+                calendarConfiguration.minYear,
+                calendarConfiguration.minYearMonth)))) {
+          calendarProvider.calendarConfiguration.weekController!.jumpToPage(i);
           break;
         }
       }
       return;
     }
 
-    if ((calendarProvider.calendarConfiguration!.monthController!.page!
+    if ((calendarProvider.calendarConfiguration.monthController!.page!
             .toInt()) ==
         0) {
       LogUtil.log(
@@ -519,7 +513,7 @@ class CalendarController {
       return;
     }
     DateTime targetDateTime = monthList[calendarProvider
-                .calendarConfiguration!.monthController!.page!
+                .calendarConfiguration.monthController!.page!
                 .toInt() -
             1]
         .getDateTime();
@@ -530,11 +524,11 @@ class CalendarController {
 
   // 获取当前的月份
   DateModel getCurrentMonth() {
-    return monthList[monthController!.page!.toInt()];
+    return monthList[monthController.page!.toInt()];
   }
 
   //获取被选中的日期,多选
-  Set<DateModel?>? getMultiSelectCalendar() {
+  Set<DateModel> getMultiSelectCalendar() {
     return calendarProvider.selectedDateList;
   }
 
@@ -548,8 +542,9 @@ class CalendarController {
     monthList.clear();
     weekList.clear();
     calendarProvider.clearData();
-    calendarConfiguration.weekChangeListeners = null;
-    calendarConfiguration.monthChangeListeners = null;
+    // fixme
+    // calendarConfiguration.weekChangeListeners = null;
+    // calendarConfiguration.monthChangeListeners = null;
   }
 }
 
@@ -588,12 +583,12 @@ bool defaultInRange(DateModel dateModel) {
 /**
  * 周视图切换
  */
-typedef void OnWeekChange(int? year, int? month);
+typedef void OnWeekChange(int year, int month);
 
 /**
  * 月份切换事件
  */
-typedef void OnMonthChange(int? year, int? month);
+typedef void OnMonthChange(int year, int month);
 
 /**
  * 日期选择事件

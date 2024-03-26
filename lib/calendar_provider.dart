@@ -1,14 +1,11 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_calendar/cache_data.dart';
-import 'package:flutter_custom_calendar/widget/month_view.dart';
-import 'configuration.dart';
-import 'constants/constants.dart';
+import 'cache_data.dart';
 import 'flutter_custom_calendar.dart';
 import 'utils/LogUtil.dart';
 import 'utils/date_util.dart';
-import 'model/date_model.dart';
+import 'widget/month_view.dart';
 
 /**
  * 引入provider的状态管理，保存一些临时信息
@@ -16,14 +13,13 @@ import 'model/date_model.dart';
  * 目前的情况：只需要获取状态，不需要监听rebuild
  */
 class CalendarProvider extends ChangeNotifier {
-  double? _totalHeight; //当前月视图的整体高度
-  HashSet<DateModel?>? selectedDateList =
-      new HashSet<DateModel?>(); //被选中的日期,用于多选
-  late DateModel _selectDateModel; //当前选中的日期，用于单选
+  late double _totalHeight; //当前月视图的整体高度
+  Set<DateModel> selectedDateList = new HashSet<DateModel>(); //被选中的日期,用于多选
+  DateModel? _selectDateModel; //当前选中的日期，用于单选
   ItemContainerState? lastClickItemState;
   late DateModel _lastClickDateModel;
 
-  double? get totalHeight => _totalHeight;
+  double get totalHeight => _totalHeight;
 
   ValueNotifier<int> _generation =
       new ValueNotifier(0); //生成的int值，每次变化，都会刷新整个日历。
@@ -34,7 +30,7 @@ class CalendarProvider extends ChangeNotifier {
     _generation = value;
   }
 
-  set totalHeight(double? value) {
+  set totalHeight(double value) {
     _totalHeight = value;
   }
 
@@ -48,29 +44,29 @@ class CalendarProvider extends ChangeNotifier {
 
   set lastClickDateModel(DateModel value) {
     _lastClickDateModel = value;
-    printY("set lastClickDateModel:$lastClickDateModel");
+    print("set lastClickDateModel:$lastClickDateModel");
   }
 
-  DateModel get selectDateModel => _selectDateModel;
+  DateModel? get selectDateModel => _selectDateModel;
 
-  set selectDateModel(DateModel value) {
+  set selectDateModel(DateModel? value) {
     _selectDateModel = value;
     LogUtil.log(
         TAG: this.runtimeType,
         message: "selectDateModel change:$selectDateModel");
-//    notifyListeners();
+    notifyListeners();
   }
 
   //根据lastClickDateModel，去计算需要展示的星期视图的初始index
   int get weekPageIndex {
     //计算当前星期视图的index
-    printY('计算当前星期视图的index  = > lastClickDateModel$lastClickDateModel');
-    DateModel? dateModel = lastClickDateModel;
-    DateTime firstWeek = calendarConfiguration!.weekList![0].getDateTime();
+    print('计算当前星期视图的index  = > lastClickDateModel$lastClickDateModel');
+    DateModel dateModel = lastClickDateModel;
+    DateTime firstWeek = calendarConfiguration.weekList[0].getDateTime();
     int index = 0;
-    for (int i = 0; i < calendarConfiguration!.weekList!.length; i++) {
+    for (int i = 0; i < calendarConfiguration.weekList.length; i++) {
       DateTime nextWeek = firstWeek.add(Duration(days: 7));
-      if (dateModel!.getDateTime().isBefore(nextWeek)) {
+      if (dateModel.getDateTime().isBefore(nextWeek)) {
         index = i;
         break;
       } else {
@@ -79,7 +75,7 @@ class CalendarProvider extends ChangeNotifier {
       }
     }
 
-    printY(
+    print(
         "lastClickDateModel:$lastClickDateModel,weekPageIndex:$index, totalHeight:$totalHeight");
     return index;
   }
@@ -87,13 +83,12 @@ class CalendarProvider extends ChangeNotifier {
   //根据lastClickDateModel，去计算需要展示的月视图的index
   int get monthPageIndex {
     //计算当前月视图的index
-    DateModel? dateModel = lastClickDateModel;
+    DateModel dateModel = lastClickDateModel;
     int index = 0;
-    for (int i = 0; i < calendarConfiguration!.monthList!.length - 1; i++) {
-      DateTime preMonth = calendarConfiguration!.monthList![i].getDateTime();
-      DateTime nextMonth =
-          calendarConfiguration!.monthList![i + 1].getDateTime();
-      if (!dateModel!.getDateTime().isBefore(preMonth) &&
+    for (int i = 0; i < calendarConfiguration.monthList.length - 1; i++) {
+      DateTime preMonth = calendarConfiguration.monthList[i].getDateTime();
+      DateTime nextMonth = calendarConfiguration.monthList[i + 1].getDateTime();
+      if (!dateModel.getDateTime().isBefore(preMonth) &&
           !dateModel.getDateTime().isAfter(nextMonth)) {
         index = i;
         break;
@@ -102,7 +97,7 @@ class CalendarProvider extends ChangeNotifier {
       }
     }
 
-    printY(
+    print(
         "lastClickDateModel:$lastClickDateModel, monthPageIndex:$index, totalHeight:$totalHeight");
     return index;
   }
@@ -127,7 +122,7 @@ class CalendarProvider extends ChangeNotifier {
     LogUtil.log(TAG: this.runtimeType, message: "CalendarProvider initData");
     this.calendarConfiguration = calendarConfiguration;
     this
-        .selectedDateList!
+        .selectedDateList
         .addAll(this.calendarConfiguration.defaultSelectedDateList!);
     this.selectDateModel = this.calendarConfiguration.selectDateModel;
     this.calendarConfiguration.padding = padding;
@@ -155,7 +150,7 @@ class CalendarProvider extends ChangeNotifier {
     //初始化item的大小。如果itemSize为空，默认是宽度/7。网页版的话是高度/7。需要减去padding和margin值
     if (calendarConfiguration.itemSize == null) {
       MediaQueryData mediaQueryData =
-          MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+          MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
       if (mediaQueryData.orientation == Orientation.landscape) {
         calendarConfiguration.itemSize = (mediaQueryData.size.height -
                 calendarConfiguration.padding!.vertical -
@@ -177,23 +172,23 @@ class CalendarProvider extends ChangeNotifier {
         calendarConfiguration.showMode ==
             CalendarConstants.MODE_SHOW_MONTH_AND_WEEK) {
       int lineCount = DateUtil.getMonthViewLineCount(
-          calendarConfiguration.nowYear!,
-          calendarConfiguration.nowMonth!,
+          calendarConfiguration.nowYear,
+          calendarConfiguration.nowMonth,
           calendarConfiguration.offset);
       totalHeight = calendarConfiguration.itemSize! * (lineCount) +
           calendarConfiguration.verticalSpacing! * (lineCount - 1);
     } else {
-      totalHeight = calendarConfiguration.itemSize;
+      totalHeight = calendarConfiguration.itemSize!;
     }
-    printY('totalHeight: $totalHeight');
+    print('totalHeight: $totalHeight');
   }
 
   //退出的时候，清除数据
   void clearData() {
     LogUtil.log(TAG: this.runtimeType, message: "CalendarProvider clearData");
-    CacheData.getInstance()!.clearData();
-    selectedDateList!.clear();
-    // selectDateModel = DateModel();
-    // calendarConfiguration = CalendarConfiguration();
+    CacheData.getInstance().clearData();
+    selectedDateList.clear();
+    // selectDateModel;
+    // calendarConfiguration = null;
   }
 }
